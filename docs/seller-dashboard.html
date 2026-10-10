@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard - JAIMART</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="demo-banner">
+    <div>
+        <span class="demo-badge">LIVE DEMO</span>
+        <strong>JAIMART on GitHub Pages</strong> &mdash; Interactive client-side preview with 100 products.
+    </div>
+    <div style="font-size:0.8rem;">
+        Anna University R2025 Semester 3 Capstone
+    </div>
+</div>
+
+<header class="site-header">
+    <a class="brand" href="index.html">JAIMART</a>
+    <nav>
+        <a href="index.html">Browse</a>
+        <a href="cart.html">Cart <span id="cartCountBadge" class="cart-badge"></span></a>
+        <a href="orders.html">Orders</a>
+        <a href="seller-dashboard.html">Sell</a>
+        <a href="admin.html">Admin</a>
+    </nav>
+    <div class="session-box" id="sessionBox"></div>
+</header>
+
+<main class="site-main">
+    <section class="seller-dashboard">
+        <h1 style="margin-top:0;">Seller Dashboard</h1>
+        
+        <div style="background:#fff;padding:1.5rem;border-radius:8px;border:1px solid var(--border);margin-bottom:2rem;">
+            <h2>Add New Listing</h2>
+            <form id="productForm" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+                <div>
+                    <label for="pName" style="display:block;margin-bottom:0.25rem;font-weight:600;">Product Name *</label>
+                    <input type="text" id="pName" required style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:4px;">
+                </div>
+                <div>
+                    <label for="pCategory" style="display:block;margin-bottom:0.25rem;font-weight:600;">Category *</label>
+                    <select id="pCategory" required style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:4px;">
+                        <option value="Electronics">Electronics</option>
+                        <option value="Apparel">Apparel</option>
+                        <option value="Home">Home</option>
+                        <option value="Accessories">Accessories</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Beauty">Beauty</option>
+                        <option value="Books">Books</option>
+                        <option value="Toys">Toys</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="pPrice" style="display:block;margin-bottom:0.25rem;font-weight:600;">Price ($) *</label>
+                    <input type="number" id="pPrice" step="0.01" min="0.01" required style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:4px;">
+                </div>
+                <div>
+                    <label for="pStock" style="display:block;margin-bottom:0.25rem;font-weight:600;">Stock Quantity *</label>
+                    <input type="number" id="pStock" min="1" value="25" required style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:4px;">
+                </div>
+                <div style="grid-column:1 / -1;">
+                    <label for="pDescription" style="display:block;margin-bottom:0.25rem;font-weight:600;">Description</label>
+                    <textarea id="pDescription" rows="2" style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:4px;"></textarea>
+                </div>
+                <div style="grid-column:1 / -1;">
+                    <button type="submit" id="productSubmitBtn">Publish Listing</button>
+                    <span id="productFormSuccess" style="color:var(--primary);margin-left:1rem;font-weight:600;"></span>
+                </div>
+            </form>
+        </div>
+
+        <h2>Current Active Listings</h2>
+        <div id="sellerProductList" style="background:#fff;padding:1.5rem;border-radius:8px;border:1px solid var(--border);"></div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <p>JAIMART &mdash; Multi-seller e-commerce marketplace built for Anna University R2025 Semester 3.</p>
+</footer>
+
+<div id="chatWidget" class="chat-widget">
+    <button id="chatToggle" class="chat-toggle" aria-label="Open support chat">&#128172;</button>
+    <div id="chatPanel" class="chat-panel hidden">
+        <div class="chat-panel-header">
+            <span>JAIMART Assistant</span>
+            <button id="chatClose" aria-label="Close chat">&times;</button>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <form id="chatForm" class="chat-form">
+            <input id="chatInput" type="text" maxlength="500" placeholder="Ask about orders, shipping, returns..." autocomplete="off" />
+            <button type="submit">Send</button>
+        </form>
+    </div>
+</div>
+
+<script src="js/products-data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/chat-widget.js"></script>
+<script>
+    function loadSellerProducts() {
+        const list = document.getElementById("sellerProductList");
+        const products = Store.getProducts("", "");
+
+        list.innerHTML = `
+            <table style="width:100%;border-collapse:collapse;text-align:left;">
+                <thead>
+                    <tr style="border-bottom:2px solid var(--border);color:var(--muted);font-size:0.9rem;">
+                        <th style="padding:0.75rem 0.5rem;">ID</th>
+                        <th style="padding:0.75rem 0.5rem;">Product Name</th>
+                        <th style="padding:0.75rem 0.5rem;">Category</th>
+                        <th style="padding:0.75rem 0.5rem;">Price</th>
+                        <th style="padding:0.75rem 0.5rem;">Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${products.slice(0, 15).map(p => `
+                        <tr style="border-bottom:1px solid #f0f0f0;">
+                            <td style="padding:0.75rem 0.5rem;font-weight:600;">#${p.id}</td>
+                            <td style="padding:0.75rem 0.5rem;"><a href="product-detail.html?id=${p.id}" style="color:var(--primary);">${Store.escapeHtml(p.name)}</a></td>
+                            <td style="padding:0.75rem 0.5rem;">${Store.escapeHtml(p.category)}</td>
+                            <td style="padding:0.75rem 0.5rem;font-weight:600;">${Store.formatMoney(p.price)}</td>
+                            <td style="padding:0.75rem 0.5rem;">${p.stockQty}</td>
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table>
+            <p style="font-size:0.85rem;color:var(--muted);margin-top:1rem;">Showing first 15 products of total ${products.length} listed products.</p>
+        `;
+    }
+
+    document.getElementById("productForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = document.getElementById("pName").value.trim();
+        const cat = document.getElementById("pCategory").value;
+        const price = document.getElementById("pPrice").value;
+        const stock = document.getElementById("pStock").value;
+        const desc = document.getElementById("pDescription").value.trim();
+
+        Store.addListing(name, desc, price, stock, cat);
+        document.getElementById("pName").value = "";
+        document.getElementById("pDescription").value = "";
+        const succ = document.getElementById("productFormSuccess");
+        succ.textContent = "✓ Product listing created successfully!";
+        setTimeout(() => { succ.textContent = ""; }, 3000);
+        loadSellerProducts();
+    });
+
+    document.addEventListener("DOMContentLoaded", loadSellerProducts);
+</script>
+</body>
+</html>

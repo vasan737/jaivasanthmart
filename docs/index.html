@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAIMART - Multi-Seller Marketplace</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="demo-banner">
+    <div>
+        <span class="demo-badge">LIVE DEMO</span>
+        <strong>JAIMART on GitHub Pages</strong> &mdash; Interactive client-side preview with 100 products.
+    </div>
+    <div style="font-size:0.8rem;">
+        Anna University R2025 Semester 3 Capstone
+    </div>
+</div>
+
+<header class="site-header">
+    <a class="brand" href="index.html">JAIMART</a>
+    <nav>
+        <a href="index.html">Browse</a>
+        <a href="cart.html">Cart <span id="cartCountBadge" class="cart-badge"></span></a>
+        <a href="orders.html">Orders</a>
+        <a href="seller-dashboard.html">Sell</a>
+        <a href="admin.html">Admin</a>
+    </nav>
+    <div class="session-box" id="sessionBox"></div>
+</header>
+
+<main class="site-main">
+    <section class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search 100 products...">
+        <select id="categorySelect">
+            <option value="">All Categories</option>
+            <option value="Accessories">Accessories</option>
+            <option value="Apparel">Apparel</option>
+            <option value="Appliances">Appliances</option>
+            <option value="Beauty">Beauty</option>
+            <option value="Books">Books</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Home">Home</option>
+            <option value="Kids">Kids</option>
+            <option value="Sports">Sports</option>
+            <option value="Stationery">Stationery</option>
+            <option value="Toys">Toys</option>
+        </select>
+        <button id="searchBtn">Search</button>
+    </section>
+
+    <div style="margin-bottom:1rem;color:var(--muted);font-size:0.9rem;">
+        Showing <span id="productCount">0</span> products in catalog
+    </div>
+
+    <section id="productGrid" class="product-grid">
+        <p>Loading catalog...</p>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <p>JAIMART &mdash; Multi-seller e-commerce marketplace built for Anna University R2025 Semester 3.</p>
+    <p style="margin-top:0.5rem;font-size:0.8rem;">
+        Hosted with GitHub Pages &middot; Full backend source in root (Java Servlets, Tomcat, JDBC, H2)
+    </p>
+</footer>
+
+<!-- Support Chat Widget -->
+<div id="chatWidget" class="chat-widget">
+    <button id="chatToggle" class="chat-toggle" aria-label="Open support chat">&#128172;</button>
+    <div id="chatPanel" class="chat-panel hidden">
+        <div class="chat-panel-header">
+            <span>JAIMART Assistant</span>
+            <button id="chatClose" aria-label="Close chat">&times;</button>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <form id="chatForm" class="chat-form">
+            <input id="chatInput" type="text" maxlength="500" placeholder="Ask about orders, shipping, returns..." autocomplete="off" />
+            <button type="submit">Send</button>
+        </form>
+    </div>
+</div>
+
+<script src="js/products-data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/chat-widget.js"></script>
+<script>
+    function renderProductCard(product) {
+        const pName = Store.escapeHtml(product.name);
+        const pCat = Store.escapeHtml(product.category || "General");
+        const pPrice = Store.formatMoney(product.price);
+        const stock = Number(product.stockQty || 0);
+        const imgSrc = product.imageUrl || 'images/products/wireless-mouse.svg';
+
+        return `
+            <a class="product-card" href="product-detail.html?id=${product.id}" aria-label="View ${pName}">
+                <div class="product-image-wrap">
+                    <img src="${imgSrc}" alt="${pName}" loading="lazy" onerror="this.onerror=null;this.src='images/products/wireless-mouse.svg';">
+                    <span class="product-image-tag">${pCat}</span>
+                </div>
+                <div class="product-card-content">
+                    <span class="category">${pCat}</span>
+                    <strong class="product-name">${pName}</strong>
+                    <span class="price">${pPrice}</span>
+                    <span class="product-stock ${stock > 0 ? "in-stock" : "out-of-stock"}">
+                        ${stock > 0 ? stock + " in stock" : "Out of stock"}
+                    </span>
+                </div>
+            </a>
+        `;
+    }
+
+    function loadCatalog() {
+        const grid = document.getElementById("productGrid");
+        const countSpan = document.getElementById("productCount");
+        const keyword = document.getElementById("searchInput").value.trim();
+        const category = document.getElementById("categorySelect").value;
+
+        const products = Store.getProducts(keyword, category);
+        countSpan.textContent = products.length;
+
+        if (products.length === 0) {
+            grid.innerHTML = '<p class="catalog-empty">No products found matching your search. Try another query.</p>';
+            return;
+        }
+
+        grid.innerHTML = products.map(renderProductCard).join("");
+    }
+
+    document.getElementById("searchBtn").addEventListener("click", loadCatalog);
+    document.getElementById("searchInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") loadCatalog();
+    });
+    document.getElementById("categorySelect").addEventListener("change", loadCatalog);
+
+    document.addEventListener("DOMContentLoaded", loadCatalog);
+</script>
+</body>
+</html>

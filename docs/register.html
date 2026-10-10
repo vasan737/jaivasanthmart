@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - JAIMART</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="demo-banner">
+    <div>
+        <span class="demo-badge">LIVE DEMO</span>
+        <strong>JAIMART on GitHub Pages</strong> &mdash; Interactive client-side preview with 100 products.
+    </div>
+    <div style="font-size:0.8rem;">
+        Anna University R2025 Semester 3 Capstone
+    </div>
+</div>
+
+<header class="site-header">
+    <a class="brand" href="index.html">JAIMART</a>
+    <nav>
+        <a href="index.html">Browse</a>
+        <a href="cart.html">Cart <span id="cartCountBadge" class="cart-badge"></span></a>
+        <a href="orders.html">Orders</a>
+        <a href="seller-dashboard.html">Sell</a>
+        <a href="admin.html">Admin</a>
+    </nav>
+    <div class="session-box" id="sessionBox"></div>
+</header>
+
+<main class="site-main" style="max-width:550px;">
+    <section class="auth-form" style="background:#fff;padding:2rem;border-radius:8px;border:1px solid var(--border);">
+        <h1 style="margin-top:0;">Register for JAIMART</h1>
+
+        <form id="registerForm">
+            <div style="margin-bottom:1rem;">
+                <label for="name" style="display:block;margin-bottom:0.25rem;font-weight:600;">Full Name</label>
+                <input type="text" id="name" required placeholder="John Doe" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:4px;">
+            </div>
+            <div style="margin-bottom:1rem;">
+                <label for="email" style="display:block;margin-bottom:0.25rem;font-weight:600;">Email Address</label>
+                <input type="email" id="email" required placeholder="john@example.com" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:4px;">
+            </div>
+            <div style="margin-bottom:1rem;">
+                <label for="password" style="display:block;margin-bottom:0.25rem;font-weight:600;">Password</label>
+                <input type="password" id="password" minlength="6" required style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:4px;">
+            </div>
+            <div style="margin-bottom:1.5rem;">
+                <label for="role" style="display:block;margin-bottom:0.25rem;font-weight:600;">Account Role</label>
+                <select id="role" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:4px;">
+                    <option value="BUYER">BUYER (Browse & Purchase)</option>
+                    <option value="SELLER">SELLER (List Products & Manage Inventory)</option>
+                </select>
+            </div>
+            <button type="submit" style="width:100%;padding:0.75rem;font-size:1rem;">Create Account</button>
+        </form>
+
+        <p style="margin-top:1.5rem;text-align:center;color:var(--muted);font-size:0.9rem;">
+            Already have an account? <a href="login.html" style="color:var(--primary);font-weight:600;">Log in</a>
+        </p>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <p>JAIMART &mdash; Multi-seller e-commerce marketplace built for Anna University R2025 Semester 3.</p>
+</footer>
+
+<script src="js/products-data.js"></script>
+<script src="js/store.js"></script>
+<script>
+    document.getElementById("registerForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const role = document.getElementById("role").value;
+
+        Store.setCurrentUser({
+            id: Math.floor(100 + Math.random() * 900),
+            name,
+            email,
+            role
+        });
+
+        if (role === "SELLER") {
+            window.location.href = "seller-dashboard.html";
+        } else {
+            window.location.href = "index.html";
+        }
+    });
+</script>
+</body>
+</html>

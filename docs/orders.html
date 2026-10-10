@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders - JAIMART</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="demo-banner">
+    <div>
+        <span class="demo-badge">LIVE DEMO</span>
+        <strong>JAIMART on GitHub Pages</strong> &mdash; Interactive client-side preview with 100 products.
+    </div>
+    <div style="font-size:0.8rem;">
+        Anna University R2025 Semester 3 Capstone
+    </div>
+</div>
+
+<header class="site-header">
+    <a class="brand" href="index.html">JAIMART</a>
+    <nav>
+        <a href="index.html">Browse</a>
+        <a href="cart.html">Cart <span id="cartCountBadge" class="cart-badge"></span></a>
+        <a href="orders.html">Orders</a>
+        <a href="seller-dashboard.html">Sell</a>
+        <a href="admin.html">Admin</a>
+    </nav>
+    <div class="session-box" id="sessionBox"></div>
+</header>
+
+<main class="site-main">
+    <section class="orders-page">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+            <h1 style="margin:0;">Order History & Tracking</h1>
+            <div style="font-size:0.85rem;color:var(--muted);">
+                Workflow: <strong>PENDING &rarr; CONFIRMED &rarr; SHIPPED &rarr; DELIVERED</strong>
+            </div>
+        </div>
+
+        <div id="ordersList">
+            <p>Loading orders...</p>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <p>JAIMART &mdash; Multi-seller e-commerce marketplace built for Anna University R2025 Semester 3.</p>
+</footer>
+
+<div id="chatWidget" class="chat-widget">
+    <button id="chatToggle" class="chat-toggle" aria-label="Open support chat">&#128172;</button>
+    <div id="chatPanel" class="chat-panel hidden">
+        <div class="chat-panel-header">
+            <span>JAIMART Assistant</span>
+            <button id="chatClose" aria-label="Close chat">&times;</button>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <form id="chatForm" class="chat-form">
+            <input id="chatInput" type="text" maxlength="500" placeholder="Ask about orders, shipping, returns..." autocomplete="off" />
+            <button type="submit">Send</button>
+        </form>
+    </div>
+</div>
+
+<script src="js/products-data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/chat-widget.js"></script>
+<script>
+    const STATUS_FLOW = { PENDING: "CONFIRMED", CONFIRMED: "SHIPPED", SHIPPED: "DELIVERED" };
+
+    function loadOrders() {
+        const container = document.getElementById("ordersList");
+        const orders = Store.getOrders();
+
+        if (orders.length === 0) {
+            container.innerHTML = `
+                <div style="background:#fff;padding:2.5rem;text-align:center;border-radius:8px;border:1px solid var(--border);">
+                    <p style="font-size:1.1rem;color:var(--muted);margin-bottom:1rem;">You don't have any placed orders yet.</p>
+                    <a href="index.html" style="background:var(--primary);color:white;padding:0.6rem 1.2rem;border-radius:4px;text-decoration:none;">Browse Products & Place an Order</a>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = orders.map(o => {
+            const nextStatus = STATUS_FLOW[o.status];
+            const itemsHtml = o.items.map(item => `
+                <li style="margin-bottom:0.4rem;display:flex;justify-content:space-between;border-bottom:1px dashed #eee;padding-bottom:0.3rem;">
+                    <span><strong>${Store.escapeHtml(item.productName)}</strong> &times; ${item.quantity}</span>
+                    <span>${Store.formatMoney(item.unitPrice * item.quantity)}</span>
+                </li>
+            `).join("");
+
+            return `
+                <div class="order-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;border-bottom:1px solid #f0f0f0;padding-bottom:0.75rem;">
+                        <div>
+                            <span style="font-size:1.15rem;font-weight:700;">Order #${o.id}</span>
+                            <span style="color:var(--muted);font-size:0.85rem;margin-left:0.5rem;">Placed on ${o.createdAt || "2026-10-10"}</span>
+                        </div>
+                        <div>
+                            <span class="status-badge ${o.status}">${o.status}</span>
+                        </div>
+                    </div>
+                    <ul style="list-style:none;padding:0;margin:0 0 1rem 0;">
+                        ${itemsHtml}
+                    </ul>
+                    <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f0f0f0;padding-top:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+                        <div style="font-size:1.1rem;font-weight:700;">
+                            Total Amount: <span style="color:var(--primary);">${Store.formatMoney(o.totalAmount)}</span>
+                        </div>
+                        <div>
+                            ${nextStatus ? `
+                                <button class="advance-status-btn" data-id="${o.id}" data-next="${nextStatus}" style="padding:0.4rem 0.8rem;font-size:0.85rem;">
+                                    Advance to ${nextStatus} &rarr;
+                                </button>
+                            ` : `
+                                <span style="color:#2e7d32;font-weight:600;font-size:0.9rem;">✓ Delivered</span>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join("");
+
+        document.querySelectorAll(".advance-status-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const orderId = e.target.dataset.id;
+                const next = e.target.dataset.next;
+                Store.updateOrderStatus(orderId, next);
+                loadOrders();
+            });
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", loadOrders);
+</script>
+</body>
+</html>

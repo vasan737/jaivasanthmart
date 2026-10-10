@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in - JAIMART</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="demo-banner">
+    <div>
+        <span class="demo-badge">LIVE DEMO</span>
+        <strong>JAIMART on GitHub Pages</strong> &mdash; Interactive client-side preview with 100 products.
+    </div>
+    <div style="font-size:0.8rem;">
+        Anna University R2025 Semester 3 Capstone
+    </div>
+</div>
+
+<header class="site-header">
+    <a class="brand" href="index.html">JAIMART</a>
+    <nav>
+        <a href="index.html">Browse</a>
+        <a href="cart.html">Cart <span id="cartCountBadge" class="cart-badge"></span></a>
+        <a href="orders.html">Orders</a>
+        <a href="seller-dashboard.html">Sell</a>
+        <a href="admin.html">Admin</a>
+    </nav>
+    <div class="session-box" id="sessionBox"></div>
+</header>
+
+<main class="site-main" style="max-width:550px;">
+    <section class="auth-form" style="background:#fff;padding:2rem;border-radius:8px;border:1px solid var(--border);">
+        <h1 style="margin-top:0;">Sign In to JAIMART</h1>
+
+        <div style="background:#f4f9f5;border:1px solid #c2e0cd;padding:1rem;border-radius:6px;margin-bottom:1.5rem;">
+            <strong style="color:var(--primary-dark);display:block;margin-bottom:0.5rem;">⚡ Quick 1-Click Demo Accounts:</strong>
+            <div class="role-pills">
+                <button class="role-pill-btn" onclick="quickLogin(4)">Buyer (Rahul)</button>
+                <button class="role-pill-btn" onclick="quickLogin(2)">Seller (Priya)</button>
+                <button class="role-pill-btn" onclick="quickLogin(1)">Admin (Site Admin)</button>
+            </div>
+            <span style="font-size:0.8rem;color:var(--muted);">Click any button above to immediately switch context and test features.</span>
+        </div>
+
+        <form id="loginForm">
+            <div style="margin-bottom:1rem;">
+                <label for="email" style="display:block;margin-bottom:0.25rem;font-weight:600;">Email Address</label>
+                <input type="email" id="email" required placeholder="name@example.com" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:4px;">
+            </div>
+            <div style="margin-bottom:1.5rem;">
+                <label for="password" style="display:block;margin-bottom:0.25rem;font-weight:600;">Password</label>
+                <input type="password" id="password" required value="password123" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:4px;">
+            </div>
+            <button type="submit" style="width:100%;padding:0.75rem;font-size:1rem;">Sign In</button>
+        </form>
+
+        <p style="margin-top:1.5rem;text-align:center;color:var(--muted);font-size:0.9rem;">
+            New to JAIMART? <a href="register.html" style="color:var(--primary);font-weight:600;">Create an account</a>
+        </p>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <p>JAIMART &mdash; Multi-seller e-commerce marketplace built for Anna University R2025 Semester 3.</p>
+</footer>
+
+<script src="js/products-data.js"></script>
+<script src="js/store.js"></script>
+<script>
+    function quickLogin(userId) {
+        const users = Store.getSeedUsers();
+        const user = users.find(u => u.id === userId);
+        if (user) {
+            Store.setCurrentUser(user);
+            if (user.role === "SELLER") {
+                window.location.href = "seller-dashboard.html";
+            } else if (user.role === "ADMIN") {
+                window.location.href = "admin.html";
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value.trim();
+        const users = Store.getSeedUsers();
+        const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+        if (user) {
+            Store.setCurrentUser(user);
+        } else {
+            // New user login simulation
+            Store.setCurrentUser({
+                id: 99,
+                name: email.split("@")[0],
+                email: email,
+                role: "BUYER"
+            });
+        }
+        window.location.href = "index.html";
+    });
+</script>
+</body>
+</html>

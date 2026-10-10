@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Moderation - JAIMART</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="demo-banner">
+    <div>
+        <span class="demo-badge">LIVE DEMO</span>
+        <strong>JAIMART on GitHub Pages</strong> &mdash; Interactive client-side preview with 100 products.
+    </div>
+    <div style="font-size:0.8rem;">
+        Anna University R2025 Semester 3 Capstone
+    </div>
+</div>
+
+<header class="site-header">
+    <a class="brand" href="index.html">JAIMART</a>
+    <nav>
+        <a href="index.html">Browse</a>
+        <a href="cart.html">Cart <span id="cartCountBadge" class="cart-badge"></span></a>
+        <a href="orders.html">Orders</a>
+        <a href="seller-dashboard.html">Sell</a>
+        <a href="admin.html">Admin</a>
+    </nav>
+    <div class="session-box" id="sessionBox"></div>
+</header>
+
+<main class="site-main">
+    <section class="admin-page">
+        <h1 style="margin-top:0;">Administrator Portal</h1>
+
+        <!-- User Accounts Overview -->
+        <div style="background:#fff;padding:1.5rem;border-radius:8px;border:1px solid var(--border);margin-bottom:2rem;">
+            <h2>Registered Users</h2>
+            <div id="adminUsers"></div>
+        </div>
+
+        <!-- Listing Moderation -->
+        <div style="background:#fff;padding:1.5rem;border-radius:8px;border:1px solid var(--border);margin-bottom:2rem;">
+            <h2>Listing Moderation</h2>
+            <p style="color:var(--muted);font-size:0.9rem;">Deactivate a listing violating marketplace rules.</p>
+            <form id="moderateForm" style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-top:1rem;">
+                <label for="moderateProductId" style="font-weight:600;">Product ID:</label>
+                <input type="number" id="moderateProductId" required placeholder="e.g. 5" style="padding:0.5rem;border:1px solid var(--border);border-radius:4px;width:120px;">
+                <button type="submit" class="secondary" style="background:#b3261e;">Deactivate Listing</button>
+            </form>
+            <p id="moderateMessage" style="font-weight:600;margin-top:0.75rem;"></p>
+        </div>
+
+        <!-- Orders Overview -->
+        <div style="background:#fff;padding:1.5rem;border-radius:8px;border:1px solid var(--border);">
+            <h2>Platform Order Activity</h2>
+            <div id="adminOrders"></div>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <p>JAIMART &mdash; Multi-seller e-commerce marketplace built for Anna University R2025 Semester 3.</p>
+</footer>
+
+<div id="chatWidget" class="chat-widget">
+    <button id="chatToggle" class="chat-toggle" aria-label="Open support chat">&#128172;</button>
+    <div id="chatPanel" class="chat-panel hidden">
+        <div class="chat-panel-header">
+            <span>JAIMART Assistant</span>
+            <button id="chatClose" aria-label="Close chat">&times;</button>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <form id="chatForm" class="chat-form">
+            <input id="chatInput" type="text" maxlength="500" placeholder="Ask about orders, shipping, returns..." autocomplete="off" />
+            <button type="submit">Send</button>
+        </form>
+    </div>
+</div>
+
+<script src="js/products-data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/chat-widget.js"></script>
+<script>
+    function loadAdminData() {
+        // Users
+        const usersDiv = document.getElementById("adminUsers");
+        const users = Store.getSeedUsers();
+        usersDiv.innerHTML = `
+            <table style="width:100%;border-collapse:collapse;text-align:left;">
+                <thead>
+                    <tr style="border-bottom:2px solid var(--border);color:var(--muted);font-size:0.9rem;">
+                        <th style="padding:0.5rem;">User ID</th>
+                        <th style="padding:0.5rem;">Name</th>
+                        <th style="padding:0.5rem;">Email</th>
+                        <th style="padding:0.5rem;">Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${users.map(u => `
+                        <tr style="border-bottom:1px solid #f0f0f0;">
+                            <td style="padding:0.5rem;font-weight:600;">#${u.id}</td>
+                            <td style="padding:0.5rem;">${Store.escapeHtml(u.name)}</td>
+                            <td style="padding:0.5rem;">${Store.escapeHtml(u.email)}</td>
+                            <td style="padding:0.5rem;"><span class="status-badge ${u.role === 'ADMIN' ? 'SHIPPED' : 'CONFIRMED'}">${u.role}</span></td>
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table>
+        `;
+
+        // Orders
+        const ordersDiv = document.getElementById("adminOrders");
+        const orders = Store.getOrders();
+        if (orders.length === 0) {
+            ordersDiv.innerHTML = "<p>No orders on platform yet.</p>";
+        } else {
+            ordersDiv.innerHTML = `
+                <table style="width:100%;border-collapse:collapse;text-align:left;">
+                    <thead>
+                        <tr style="border-bottom:2px solid var(--border);color:var(--muted);font-size:0.9rem;">
+                            <th style="padding:0.5rem;">Order ID</th>
+                            <th style="padding:0.5rem;">Total</th>
+                            <th style="padding:0.5rem;">Status</th>
+                            <th style="padding:0.5rem;">Items</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${orders.map(o => `
+                            <tr style="border-bottom:1px solid #f0f0f0;">
+                                <td style="padding:0.5rem;font-weight:600;">#${o.id}</td>
+                                <td style="padding:0.5rem;">${Store.formatMoney(o.totalAmount)}</td>
+                                <td style="padding:0.5rem;"><span class="status-badge ${o.status}">${o.status}</span></td>
+                                <td style="padding:0.5rem;">${o.items.length} item(s)</td>
+                            </tr>
+                        `).join("")}
+                    </tbody>
+                </table>
+            `;
+        }
+    }
+
+    document.getElementById("moderateForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const pId = document.getElementById("moderateProductId").value;
+        const success = Store.deactivateListing(pId);
+        const msg = document.getElementById("moderateMessage");
+        if (success) {
+            msg.style.color = "#2e7d32";
+            msg.textContent = `✓ Listing #${pId} has been successfully deactivated.`;
+        } else {
+            msg.style.color = "#b3261e";
+            msg.textContent = `Product #${pId} not found.`;
+        }
+        document.getElementById("moderateProductId").value = "";
+    });
+
+    document.addEventListener("DOMContentLoaded", loadAdminData);
+</script>
+</body>
+</html>

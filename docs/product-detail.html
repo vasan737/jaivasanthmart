@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - JAIMART</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="demo-banner">
+    <div>
+        <span class="demo-badge">LIVE DEMO</span>
+        <strong>JAIMART on GitHub Pages</strong> &mdash; Interactive client-side preview with 100 products.
+    </div>
+    <div style="font-size:0.8rem;">
+        Anna University R2025 Semester 3 Capstone
+    </div>
+</div>
+
+<header class="site-header">
+    <a class="brand" href="index.html">JAIMART</a>
+    <nav>
+        <a href="index.html">Browse</a>
+        <a href="cart.html">Cart <span id="cartCountBadge" class="cart-badge"></span></a>
+        <a href="orders.html">Orders</a>
+        <a href="seller-dashboard.html">Sell</a>
+        <a href="admin.html">Admin</a>
+    </nav>
+    <div class="session-box" id="sessionBox"></div>
+</header>
+
+<main class="site-main">
+    <div style="margin-bottom:1rem;">
+        <a href="index.html" style="color:var(--primary);text-decoration:none;font-weight:600;">&larr; Back to catalog</a>
+    </div>
+
+    <section id="productDetail" class="product-detail">
+        <p>Loading product...</p>
+    </section>
+
+    <section id="reviewSection" class="review-section">
+        <h2>Customer Reviews & Ratings</h2>
+        <div id="reviewList" style="margin-top:1rem;"></div>
+
+        <form id="reviewForm" style="margin-top:2rem;background:#fff;padding:1.5rem;border-radius:8px;border:1px solid var(--border);">
+            <h3>Leave a Review</h3>
+            <div style="margin-bottom:1rem;">
+                <label for="rating" style="display:block;margin-bottom:0.25rem;font-weight:600;">Rating</label>
+                <select id="rating" style="padding:0.5rem;border:1px solid var(--border);border-radius:4px;width:100%;max-width:300px;">
+                    <option value="5">5 &starf;&starf;&starf;&starf;&starf; - Excellent</option>
+                    <option value="4">4 &starf;&starf;&starf;&starf;&star; - Good</option>
+                    <option value="3">3 &starf;&starf;&starf;&star;&star; - Average</option>
+                    <option value="2">2 &starf;&starf;&star;&star;&star; - Poor</option>
+                    <option value="1">1 &starf;&star;&star;&star;&star; - Very poor</option>
+                </select>
+            </div>
+            <div style="margin-bottom:1rem;">
+                <label for="comment" style="display:block;margin-bottom:0.25rem;font-weight:600;">Comment</label>
+                <textarea id="comment" maxlength="2000" rows="3" placeholder="Share your experience..." style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:4px;"></textarea>
+            </div>
+            <button type="submit">Submit Review</button>
+            <p id="reviewSuccess" style="color:var(--primary);font-weight:600;margin-top:0.5rem;"></p>
+        </form>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <p>JAIMART &mdash; Multi-seller e-commerce marketplace built for Anna University R2025 Semester 3.</p>
+</footer>
+
+<div id="chatWidget" class="chat-widget">
+    <button id="chatToggle" class="chat-toggle" aria-label="Open support chat">&#128172;</button>
+    <div id="chatPanel" class="chat-panel hidden">
+        <div class="chat-panel-header">
+            <span>JAIMART Assistant</span>
+            <button id="chatClose" aria-label="Close chat">&times;</button>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <form id="chatForm" class="chat-form">
+            <input id="chatInput" type="text" maxlength="500" placeholder="Ask about orders, shipping, returns..." autocomplete="off" />
+            <button type="submit">Send</button>
+        </form>
+    </div>
+</div>
+
+<script src="js/products-data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/chat-widget.js"></script>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get("id") || 1;
+    let currentProduct = null;
+
+    function loadProduct() {
+        currentProduct = Store.getProductById(productId);
+        const container = document.getElementById("productDetail");
+
+        if (!currentProduct) {
+            container.innerHTML = "<p>Product not found.</p>";
+            return;
+        }
+
+        const reviewData = Store.getReviews(productId);
+        const avg = reviewData.averageRating > 0 ? reviewData.averageRating.toFixed(1) + " / 5" : "No ratings yet";
+
+        container.innerHTML = `
+            <div style="display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start;background:#fff;padding:2rem;border-radius:8px;border:1px solid var(--border);">
+                <div style="flex:1;min-width:260px;max-width:400px;text-align:center;background:#f9fbf9;padding:1.5rem;border-radius:8px;">
+                    <img src="${currentProduct.imageUrl}" alt="${Store.escapeHtml(currentProduct.name)}" style="max-width:100%;max-height:300px;object-fit:contain;" onerror="this.onerror=null;this.src='images/products/wireless-mouse.svg';">
+                </div>
+                <div style="flex:2;min-width:300px;">
+                    <span style="font-size:0.85rem;color:var(--primary);font-weight:600;text-transform:uppercase;">${Store.escapeHtml(currentProduct.category)}</span>
+                    <h1 style="margin:0.5rem 0 1rem 0;">${Store.escapeHtml(currentProduct.name)}</h1>
+                    <p style="color:#555;line-height:1.6;font-size:1.05rem;">${Store.escapeHtml(currentProduct.description)}</p>
+                    <div style="margin:1.5rem 0;font-size:1.75rem;font-weight:700;color:var(--primary);">${Store.formatMoney(currentProduct.price)}</div>
+                    
+                    <div style="margin-bottom:1rem;">
+                        <span class="product-stock ${currentProduct.stockQty > 0 ? "in-stock" : "out-of-stock"}" style="font-size:0.95rem;">
+                            ${currentProduct.stockQty > 0 ? currentProduct.stockQty + " units available" : "Out of stock"}
+                        </span>
+                        &middot;
+                        <span>Average rating: <strong>${avg}</strong> (${reviewData.reviews.length} reviews)</span>
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:1rem;margin-top:1.5rem;">
+                        <label for="qty" style="font-weight:600;">Qty:</label>
+                        <input type="number" id="qty" min="1" max="${currentProduct.stockQty}" value="1" style="width:70px;padding:0.5rem;border:1px solid var(--border);border-radius:4px;">
+                        <button id="addToCartBtn" style="padding:0.75rem 1.5rem;font-size:1rem;">Add to Cart</button>
+                    </div>
+                    <p id="addToCartMsg" style="color:var(--primary);font-weight:600;margin-top:0.75rem;"></p>
+                </div>
+            </div>
+        `;
+
+        document.getElementById("addToCartBtn").addEventListener("click", () => {
+            const qty = parseInt(document.getElementById("qty").value, 10) || 1;
+            Store.addToCart(currentProduct.id, qty);
+            const msg = document.getElementById("addToCartMsg");
+            msg.textContent = `✓ Added ${qty} item(s) to your cart!`;
+            setTimeout(() => { msg.textContent = ""; }, 3000);
+        });
+
+        renderReviews(reviewData.reviews);
+    }
+
+    function renderReviews(reviews) {
+        const list = document.getElementById("reviewList");
+        if (!reviews || reviews.length === 0) {
+            list.innerHTML = "<p style='color:var(--muted);'>No reviews yet for this product. Be the first to review!</p>";
+            return;
+        }
+        list.innerHTML = reviews.map(r => `
+            <div class="order-card">
+                <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
+                    <strong>${Store.escapeHtml(r.userName || "Verified Buyer")}</strong>
+                    <span style="color:#e8a33d;font-size:1.1rem;">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</span>
+                </div>
+                <p style="margin:0;color:#444;">${Store.escapeHtml(r.comment)}</p>
+            </div>
+        `).join("");
+    }
+
+    document.getElementById("reviewForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const rating = document.getElementById("rating").value;
+        const comment = document.getElementById("comment").value;
+        Store.addReview(productId, rating, comment);
+        document.getElementById("comment").value = "";
+        const succ = document.getElementById("reviewSuccess");
+        succ.textContent = "Review posted successfully!";
+        setTimeout(() => { succ.textContent = ""; }, 3000);
+        renderReviews(Store.getReviews(productId).reviews);
+    });
+
+    document.addEventListener("DOMContentLoaded", loadProduct);
+</script>
+</body>
+</html>
