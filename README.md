@@ -6,10 +6,10 @@ JDBC, and Apache Tomcat, for Anna University R2025 Semester 3.
 > Checkpoint window: Jul 27 - Oct 10, 2026 &middot; Builder: solo
 
 ### 🌐 Live Demo & GitHub Pages Hosting
-- **Live Demo Site**: Hosted directly on GitHub Pages via `./docs`
+- **Live Demo Site**: [https://vasan737.github.io/jaivasanthmart/](https://vasan737.github.io/jaivasanthmart/)
 - **Features Demonstrated**: 100-product catalog, live keyword & category search, product details with reviews, interactive shopping cart, mock checkout, order status tracker (`Pending` &rarr; `Confirmed` &rarr; `Shipped` &rarr; `Delivered`), seller dashboard, admin moderation portal, and AI FAQ chatbot assistant.
 - **GitHub Pages Configuration**: Go to your repository's **Settings &rarr; Pages &rarr; Build and deployment**:
-  - **Source**: *GitHub Actions* (automated via `.github/workflows/pages.yml`) or *Deploy from a branch* (`main` / `docs`).
+  - **Source**: *Deploy from a branch* (`main` / root `/` or `/docs`).
 
 
 ## Problem statement
